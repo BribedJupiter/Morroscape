@@ -17,7 +17,7 @@ private:
 	float cameraSpeed;
 	int cameraMode;
 public:
-	CameraController(bool server=false);
+	CameraController();
 	~CameraController();
 	Camera getCamera();
 	void setCameraMode(CameraMode mode);

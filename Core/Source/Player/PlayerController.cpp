@@ -12,9 +12,9 @@
 
 #include "PlayerController.h"
 
-PlayerController::PlayerController(CommandDispatcher& dispatcher, bool server)
-	: cameraController(CameraController(server)), dispatcher(dispatcher),
-	movementSpeed(BASE_MOVEMENT_SPEED), server(server), playerObject_ptr(nullptr), isPlayerSpawned(false), lastPlayerPos({0, 0, 0})
+PlayerController::PlayerController(CommandDispatcher& dispatcher)
+	: cameraController(CameraController()), dispatcher(dispatcher),
+	movementSpeed(BASE_MOVEMENT_SPEED), playerObject_ptr(nullptr), isPlayerSpawned(false), lastPlayerPos({0, 0, 0})
 {}
 
 CameraController& PlayerController::getCameraController() {
@@ -35,6 +35,9 @@ void PlayerController::receiveCommand(Command command) {
 		//std::cout << "[Entity " << name << "] Player game object despawned located at " << command.address << std::endl;
 		playerObject_ptr = (GameObject*) command.address; // cast to correct type
 		isPlayerSpawned = false;
+	}
+	if (command.message == "SWITCH CAMERA FIRST PERSON") {
+		cameraController.setCameraMode(CAMERA_FIRST_PERSON);
 	}
 	//std::cout  << "[Entity " << name << "] Player object ptr " << playerObject_ptr << std::endl;
 	else {
@@ -89,7 +92,7 @@ void PlayerController::update(float deltaTime) {
 	}
 
 	// Camera
-	if (IsKeyPressed(KEY_F) && !server) {
+	if (IsKeyPressed(KEY_F)) {
 		cameraController.setCameraMode(
 			cameraController.getCameraMode() == CAMERA_FIRST_PERSON 
 			? CAMERA_THIRD_PERSON : CAMERA_FIRST_PERSON);

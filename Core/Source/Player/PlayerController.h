@@ -21,12 +21,11 @@ private:
 	CameraController cameraController;
 	CommandDispatcher& dispatcher;
 	float movementSpeed;
-	bool server;
 	GameObject* playerObject_ptr;
 	bool isPlayerSpawned;
 	Vector3 lastPlayerPos;
 public:
-	PlayerController(CommandDispatcher& dispatcher, bool server=false);
+	PlayerController(CommandDispatcher& dispatcher);
 	CameraController& getCameraController();
 	
 	void getPlayerObject();

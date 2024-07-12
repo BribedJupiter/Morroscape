@@ -14,7 +14,7 @@
 
 GameManager::GameManager(bool server, bool drawDebug)
 	: server(server), drawDebug(drawDebug), dispatcher(CommandDispatcher()), world(World(dispatcher)),
-	localPlayerController(PlayerController(dispatcher, server))
+	localPlayerController(PlayerController(dispatcher))
 {
 	// Setup entities
 	this->setName("Game Manager");
@@ -34,10 +34,11 @@ GameManager::GameManager(bool server, bool drawDebug)
 	world.populate();
 
 	if (server) {
-		// If server
+		// If serverd
 	}
 	else {
 		// If client
+		dispatcher.dispatchCommand({ "World", "Local Player Controller", "SWITCH CAMERA FIRST PERSON", nullptr });
 	}
 
 	// Final initialization

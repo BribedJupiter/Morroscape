@@ -12,8 +12,8 @@
 
 #include "CameraController.h"
 
-CameraController::CameraController(bool server)
-	: camera({ 0 }), cameraSpeed(BASE_CAMERA_SPEED), cameraMode(server ? CAMERA_FREE : CAMERA_FIRST_PERSON)
+CameraController::CameraController()
+	: camera({ 0 }), cameraSpeed(BASE_CAMERA_SPEED), cameraMode(CAMERA_FREE)
 {
 	// Camera setup
 	camera.position = Vector3{ 4.0f, 2.0f, 0.0f };
