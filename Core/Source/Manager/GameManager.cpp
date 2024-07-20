@@ -34,7 +34,7 @@ GameManager::GameManager(bool server, bool drawDebug)
 	world.populate();
 
 	if (server) {
-		// If serverd
+		// If server
 	}
 	else {
 		// If client
