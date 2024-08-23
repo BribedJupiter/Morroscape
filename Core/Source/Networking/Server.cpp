@@ -58,7 +58,18 @@ void Server::run(uint16 port) {
 	}
 
 	// Close server
-	serverInstance->close();
+	for (auto it : mapClients) {
+		// Send a goodbye message
+		// Close connection
+		networkInterface->CloseConnection(it.first, 0, "Sever Shutdown", true);
+	}
+	mapClients.clear();
+
+	networkInterface->CloseListenSocket(listenSocket);
+	listenSocket = k_HSteamListenSocket_Invalid;
+
+	networkInterface->DestroyPollGroup(pollGroup);
+	pollGroup = k_HSteamNetPollGroup_Invalid;
 }
 
 void Server::SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t* pInfo) {
@@ -78,18 +89,7 @@ void Server::unpause() {
 }
 
 void Server::close() {
-	for (auto it : mapClients) {
-		// Send a goodbye message
-		// Close connection
-		networkInterface->CloseConnection(it.first, 0, "Sever Shutdown", true);
-	}
-	mapClients.clear();
-
-	networkInterface->CloseListenSocket(listenSocket);
-	listenSocket = k_HSteamListenSocket_Invalid;
-
-	networkInterface->DestroyPollGroup(pollGroup);
-	pollGroup = k_HSteamNetPollGroup_Invalid;
+	running = false;
 }
 
 void Server::sendMessage(HSteamNetConnection conn, const char *str) {
