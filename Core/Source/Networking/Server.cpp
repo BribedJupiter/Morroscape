@@ -9,22 +9,35 @@
 #include "Server.h"
 
 #include <raylib.h>
-
 #include <stdexcept>
 #include <iostream>
 #include <assert.h>
 #include <thread>
 #include <chrono>
 
-Server::Server() {
+static Server* serverInstance; // must be in the implementation file
 
+Server::Server() {
+	
 }
 
 void Server::run(uint16 port) {
 	applyServerInstance(this);
 
+	SteamDatagramErrMsg errMsg;
+	if (!GameNetworkingSockets_Init(nullptr, errMsg))
+		std::cerr << "GameNetworkingSockets_Init failed: " << errMsg << std::endl;
+
+	// Other init steps to implement
+	//g_logTimeZero = SteamNetworkingUtils()->GetLocalTimestamp();
+	//SteamNetworkingUtils()->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg, DebugOutput);
+
 	// Use the default interface
 	networkInterface = SteamNetworkingSockets();
+	if (networkInterface == nullptr) {
+		std::cerr << "Error: SteamNetworkingSockets returned nullptr." << std::endl;
+		return;
+	}
 
 	// Set up server address and port
 	SteamNetworkingIPAddr serverLocalAddr;
@@ -70,6 +83,8 @@ void Server::run(uint16 port) {
 
 	networkInterface->DestroyPollGroup(pollGroup);
 	pollGroup = k_HSteamNetPollGroup_Invalid;
+
+	GameNetworkingSockets_Kill();
 }
 
 void Server::SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t* pInfo) {
@@ -237,9 +252,9 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 		default:
 			break;
 	}
-
 }
 
 Server::~Server() {
-	
+	if (networkInterface != nullptr) free(serverInstance);
+	close();
 }

@@ -15,6 +15,7 @@
 #include "Player/PlayerController.h"
 #include "Core/CommandDispatcher.h"
 #include "Core/GameEntity.h"
+#include "Networking/Server.h"
 
 // Game constants
 const int TARGET_FPS = 120;
@@ -28,13 +29,14 @@ const int screenHeight = 720;
 
 class GameManager : public GameEntity {
 private:
-	bool server; //  server or client
+	bool isServer; //  server or client
 	bool drawDebug = DEBUG_MODE; 
 	CommandDispatcher dispatcher;
 	World world;
 	PlayerController localPlayerController;
+	Server server;
 public:
-	GameManager(bool server=false, bool drawDebug=true); // defaults to client behavior
+	GameManager(bool isServer=false, bool drawDebug=true); // defaults to client behavior
 	void dispatchCommand(Command command);
 	void connectToNetwork();
 	void syncWithNetwork();

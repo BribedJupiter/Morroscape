@@ -12,9 +12,9 @@
 
 // TODO: Fix always initialize a localPlayerController
 
-GameManager::GameManager(bool server, bool drawDebug)
-	: server(server), drawDebug(drawDebug), dispatcher(CommandDispatcher()), world(World(dispatcher)),
-	localPlayerController(PlayerController(dispatcher))
+GameManager::GameManager(bool isServer, bool drawDebug)
+	: isServer(isServer), drawDebug(drawDebug), dispatcher(CommandDispatcher()), world(World(dispatcher)),
+	localPlayerController(PlayerController(dispatcher)), server(Server())
 {
 	// Setup entities
 	this->setName("Game Manager");
@@ -33,8 +33,9 @@ GameManager::GameManager(bool server, bool drawDebug)
 	// Setup world - must be done after initializing the window as it loads objects into the GPU
 	world.populate();
 
-	if (server) {
+	if (isServer) {
 		// If server
+		server.run(8080);
 	}
 	else {
 		// If client

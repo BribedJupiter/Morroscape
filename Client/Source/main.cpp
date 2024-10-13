@@ -49,9 +49,8 @@ int main() {
 
 	// Initialization
 	// --------------------------------------------------
-	bool server = false;
-	GameManager gameManager = GameManager(server);
-
+	bool isServer = true;
+	GameManager gameManager = GameManager(isServer);
 	// --------------------------------------------------
 
 	// Main game loop
@@ -67,6 +66,5 @@ int main() {
 
 	// De-initialization
 	// --------------------------------------------------
-
 	return 0;
 }

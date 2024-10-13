@@ -23,6 +23,8 @@ public:
 	void pause(); // Pause server execution but keep it online
 	void unpause(); // Unpause server execution if paused
 	void close(); // Terminate the server
+	Server();
+	~Server();
 
 private:
 	bool running = false;
@@ -31,10 +33,6 @@ private:
 	HSteamListenSocket listenSocket;
 	HSteamNetPollGroup pollGroup;
 	ISteamNetworkingSockets* networkInterface;
-	static Server* serverInstance;
-
-	Server();
-	~Server();
 
 	static void SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t* pInfo); // The static method that is actually called on callback
 	static void applyServerInstance(Server* server); // Sets the server instance
