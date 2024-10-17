@@ -64,20 +64,18 @@ void Client::tick() {
 }
 
 void Client::pollMessages() {
-	if (running) {
-		ISteamNetworkingMessage* incomingMsg = nullptr;
-		int numMsgs = networkInterface->ReceiveMessagesOnConnection(connection, &incomingMsg, 1);
-		if (numMsgs == 0) {
-			return;
-		}
-		if (numMsgs < 0) {
-			std::cerr << "Error checking messages" << std::endl;
-		}
+	ISteamNetworkingMessage* incomingMsg = nullptr;
+	int numMsgs = networkInterface->ReceiveMessagesOnConnection(connection, &incomingMsg, 1);
+	if (numMsgs == 0) {
+		return;
+	}
+	if (numMsgs < 0) {
+		std::cerr << "Error checking messages" << std::endl;
+	}
 
-		if (incomingMsg != nullptr) {
-			DrawText((const char*)incomingMsg->m_pData, 100, 100, 12, RED);
-			incomingMsg->Release();
-		}
+	if (incomingMsg != nullptr) {
+		DrawText((const char*)incomingMsg->m_pData, 100, 100, 12, RED);
+		incomingMsg->Release();
 	}
 }
 

@@ -41,8 +41,9 @@ GameManager::GameManager(bool isServer, bool drawDebug)
 	else {
 		// If client
 		SteamNetworkingIPAddr serverAddr;
-		serverAddr.Clear();
+		serverAddr.SetIPv6LocalHost(8080);
 		client.init(serverAddr);
+
 		dispatcher.dispatchCommand({ "World", "Local Player Controller", "SWITCH CAMERA FIRST PERSON", nullptr });
 	}
 
@@ -92,9 +93,9 @@ void GameManager::render() {
 	}
 
 	world.render(drawDebug); // handle 3D, render world and phsyics
-
+	
 	EndMode3D();
-
+	
 	if (drawDebug) {
 		(localPlayerController.getCameraController().getCameraMode() == CAMERA_FIRST_PERSON)
 			? DrawText("First Person", 10, 40, 20, DARKGREEN) : localPlayerController.getCameraController().getCameraMode() == CAMERA_THIRD_PERSON
@@ -102,7 +103,7 @@ void GameManager::render() {
 		DrawText("Morroscape v0.01", 10, screenHeight - 30, 20, RED);
 		DrawFPS(10, 10);
 	}
-
+	
 	EndDrawing();
 }
 
