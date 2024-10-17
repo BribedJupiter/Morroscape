@@ -12,3 +12,24 @@
 
 #include <GameNetworkingSockets/steam/steamnetworkingsockets.h>
 #include <GameNetworkingSockets/steam/isteamnetworkingutils.h>
+
+class Client {
+public:
+	void init(const SteamNetworkingIPAddr& serverAddr);
+	void tick();
+	void close();
+	Client();
+	~Client();
+
+	bool running = false;
+
+private:
+	HSteamNetConnection connection;
+	ISteamNetworkingSockets* networkInterface;
+
+	void sendMessage(const char* msg);
+	void pollMessages();
+	void pollConnectionStateChanges();
+	void OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* pInfo);
+	static void SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t* pInfo);
+};

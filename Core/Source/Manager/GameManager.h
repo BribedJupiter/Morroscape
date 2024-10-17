@@ -16,6 +16,7 @@
 #include "Core/CommandDispatcher.h"
 #include "Core/GameEntity.h"
 #include "Networking/Server.h"
+#include "Networking/Client.h"
 
 // Game constants
 const int TARGET_FPS = 120;
@@ -35,6 +36,7 @@ private:
 	World world;
 	PlayerController localPlayerController;
 	Server server;
+	Client client;
 public:
 	GameManager(bool isServer=false, bool drawDebug=true); // defaults to client behavior
 	void dispatchCommand(Command command);

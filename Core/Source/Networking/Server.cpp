@@ -21,7 +21,7 @@ Server::Server() {
 	
 }
 
-void Server::run(uint16 port) {
+void Server::init(uint16 port) {
 	applyServerInstance(this);
 
 	SteamDatagramErrMsg errMsg;
@@ -58,33 +58,6 @@ void Server::run(uint16 port) {
 	
 	running = true;
 	std::cout << "Server listening on port: " << port << std::endl;
-
-	while (running) {
-		// Poll messages
-		pollMessages();
-		// Poll connection state changes
-		pollConnectionStateChanges();
-		// Poll local input
-		pollServerStateChanges();
-		// Sleep for a milisecond or two
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	}
-
-	// Close server
-	for (auto it : mapClients) {
-		// Send a goodbye message
-		// Close connection
-		networkInterface->CloseConnection(it.first, 0, "Sever Shutdown", true);
-	}
-	mapClients.clear();
-
-	networkInterface->CloseListenSocket(listenSocket);
-	listenSocket = k_HSteamListenSocket_Invalid;
-
-	networkInterface->DestroyPollGroup(pollGroup);
-	pollGroup = k_HSteamNetPollGroup_Invalid;
-
-	GameNetworkingSockets_Kill();
 }
 
 void Server::SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t* pInfo) {
@@ -93,6 +66,15 @@ void Server::SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusCha
 
 void Server::applyServerInstance(Server* server) {
 	serverInstance = server;
+}
+
+void Server::tick() {
+	// Poll messages
+	pollMessages();
+	// Poll connection state changes
+	pollConnectionStateChanges();
+	// Poll local input
+	pollServerStateChanges();
 }
 
 void Server::pause() {
@@ -104,7 +86,25 @@ void Server::unpause() {
 }
 
 void Server::close() {
-	running = false;
+	if (running) {
+		// Close server
+		for (auto it : mapClients) {
+			// Send a goodbye message
+			// Close connection
+			networkInterface->CloseConnection(it.first, 0, "Sever Shutdown", true);
+		}
+		mapClients.clear();
+
+		networkInterface->CloseListenSocket(listenSocket);
+		listenSocket = k_HSteamListenSocket_Invalid;
+
+		networkInterface->DestroyPollGroup(pollGroup);
+		pollGroup = k_HSteamNetPollGroup_Invalid;
+
+		serverInstance = nullptr;
+		running = false;
+		GameNetworkingSockets_Kill();
+	}
 }
 
 void Server::sendMessage(HSteamNetConnection conn, const char *str) {
@@ -241,7 +241,7 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 			broadcast(temp);
 
 			// Add to client list
-			mapClients.insert({ pInfo->m_hConn, Client{nick} });
+			mapClients.insert({ pInfo->m_hConn, ClientRecord{nick} });
 			break;
 		}
 
@@ -255,6 +255,5 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 }
 
 Server::~Server() {
-	if (networkInterface != nullptr) free(serverInstance);
 	close();
 }

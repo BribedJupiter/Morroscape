@@ -49,7 +49,7 @@ int main() {
 
 	// Initialization
 	// --------------------------------------------------
-	bool isServer = true;
+	bool isServer = false;
 	GameManager gameManager = GameManager(isServer);
 	// --------------------------------------------------
 

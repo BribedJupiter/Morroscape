@@ -9,12 +9,13 @@
 #include <iostream>
 
 #include "GameManager.h"
+#include "GameNetworkingSockets/steam/isteamnetworkingsockets.h"
 
 // TODO: Fix always initialize a localPlayerController
 
 GameManager::GameManager(bool isServer, bool drawDebug)
 	: isServer(isServer), drawDebug(drawDebug), dispatcher(CommandDispatcher()), world(World(dispatcher)),
-	localPlayerController(PlayerController(dispatcher)), server(Server())
+	localPlayerController(PlayerController(dispatcher)), server(Server()), client(Client())
 {
 	// Setup entities
 	this->setName("Game Manager");
@@ -35,10 +36,13 @@ GameManager::GameManager(bool isServer, bool drawDebug)
 
 	if (isServer) {
 		// If server
-		server.run(8080);
+		server.init(8080);
 	}
 	else {
 		// If client
+		SteamNetworkingIPAddr serverAddr;
+		serverAddr.Clear();
+		client.init(serverAddr);
 		dispatcher.dispatchCommand({ "World", "Local Player Controller", "SWITCH CAMERA FIRST PERSON", nullptr });
 	}
 
@@ -71,6 +75,8 @@ void GameManager::update() {
 	float deltaTime = GetFrameTime();
 	localPlayerController.update(deltaTime);
 	world.update(deltaTime); // update world and physics
+	if (isServer) server.tick(); // TODO: multithread this - not blocking
+	else client.tick();
 }
 
 void GameManager::render() {

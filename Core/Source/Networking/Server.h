@@ -13,13 +13,14 @@
 #include <GameNetworkingSockets/steam/steamnetworkingsockets.h>
 #include <GameNetworkingSockets/steam/isteamnetworkingutils.h>
 
-struct Client {
+struct ClientRecord {
 	std::string name;
 };
 
 class Server {
 public:
-	void run(uint16 port); // Initialize and start the server
+	void init(uint16 port); // Initialize and start the server
+	void tick(); // one iteration of the server loop
 	void pause(); // Pause server execution but keep it online
 	void unpause(); // Unpause server execution if paused
 	void close(); // Terminate the server
@@ -29,7 +30,7 @@ public:
 private:
 	bool running = false;
 
-	std::map<HSteamNetConnection, Client> mapClients;
+	std::map<HSteamNetConnection, ClientRecord> mapClients;
 	HSteamListenSocket listenSocket;
 	HSteamNetPollGroup pollGroup;
 	ISteamNetworkingSockets* networkInterface;
