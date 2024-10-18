@@ -76,6 +76,7 @@ void GameManager::update() {
 	float deltaTime = GetFrameTime();
 	localPlayerController.update(deltaTime);
 	world.update(deltaTime); // update world and physics
+
 	if (isServer) server.tick(); // TODO: multithread this - not blocking
 	else client.tick();
 }

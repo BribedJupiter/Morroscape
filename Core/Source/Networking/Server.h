@@ -37,6 +37,8 @@ private:
 
 	static void SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t* pInfo); // The static method that is actually called on callback
 	static void applyServerInstance(Server* server); // Sets the server instance
+	static void debugOutput(ESteamNetworkingSocketsDebugOutputType eType, const char *msg);
+
 	void sendMessage(HSteamNetConnection conn, const char* str); // Send a message to a client
 	void broadcast(const char* str); // Send a message to all connected clients
 	void pollMessages(); // Poll incoming messages and process them

@@ -15,17 +15,19 @@
 
 class Client {
 public:
+	bool running = false;
+	bool connected = false;
+
 	void init(const SteamNetworkingIPAddr& serverAddr);
 	void tick();
 	void close();
 	Client();
 	~Client();
-
-	bool running = false;
-
 private:
 	HSteamNetConnection connection;
 	ISteamNetworkingSockets* networkInterface;
+
+	static void debugOutput(ESteamNetworkingSocketsDebugOutputType eType, const char* msg);
 
 	void sendMessage(const char* msg);
 	void pollMessages();

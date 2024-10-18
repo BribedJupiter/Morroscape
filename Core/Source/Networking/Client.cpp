@@ -14,6 +14,7 @@
 #include "Client.h"
 
 static Client* callbackInstance;
+static SteamNetworkingMicroseconds logTimeZero;
 
 Client::Client() {
 
@@ -23,8 +24,20 @@ Client::~Client() {
 	close();
 }
 
+void Client::debugOutput(ESteamNetworkingSocketsDebugOutputType eType, const char* msg) {
+	SteamNetworkingMicroseconds time = SteamNetworkingUtils()->GetLocalTimestamp() - logTimeZero;
+
+	if (eType == k_ESteamNetworkingSocketsDebugOutputType_Bug || eType == k_ESteamNetworkingSocketsDebugOutputType_Error) {
+		std::cout << "[DEBUG Client] Time:" << time << "|" << msg << std::endl;
+	}
+}
+
 void Client::init(const SteamNetworkingIPAddr &serverAddr) {
 	callbackInstance = this;
+
+	// init debug
+	logTimeZero = SteamNetworkingUtils()->GetLocalTimestamp();
+	SteamNetworkingUtils()->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg, debugOutput);
 
 	SteamDatagramErrMsg errMsg;
 	if (!GameNetworkingSockets_Init(nullptr, errMsg))
@@ -49,9 +62,11 @@ void Client::init(const SteamNetworkingIPAddr &serverAddr) {
 	connection = networkInterface->ConnectByIPAddress(serverAddr, 1, &opt);
 	if (connection == k_HSteamNetConnection_Invalid) {
 		std::cerr << "Failed to create connection to server" << std::endl;
+	//	debugOutput(k_ESteamNetworkingSocketsDebugOutputType_Bug, "Failed to create connection to server");
+		return;
 	}
 
-	std::cout << "Client connected to server" << std::endl;
+	std::cout << "Client initialized" << std::endl;
 	running = true;
 }
 
@@ -64,18 +79,21 @@ void Client::tick() {
 }
 
 void Client::pollMessages() {
-	ISteamNetworkingMessage* incomingMsg = nullptr;
-	int numMsgs = networkInterface->ReceiveMessagesOnConnection(connection, &incomingMsg, 1);
-	if (numMsgs == 0) {
-		return;
-	}
-	if (numMsgs < 0) {
-		std::cerr << "Error checking messages" << std::endl;
-	}
+	if (connected) {
+		ISteamNetworkingMessage* incomingMsg = nullptr;
+		int numMsgs = networkInterface->ReceiveMessagesOnConnection(connection, &incomingMsg, 1);
+		if (numMsgs == 0) {
+			return;
+		}
+		if (numMsgs < 0) {
+			//std::cerr << "Error checking messages" << std::endl;
+			debugOutput(k_ESteamNetworkingSocketsDebugOutputType_Bug, "Error checking messages");
+		}
 
-	if (incomingMsg != nullptr) {
-		DrawText((const char*)incomingMsg->m_pData, 100, 100, 12, RED);
-		incomingMsg->Release();
+		if (incomingMsg != nullptr) {
+			DrawText((const char*)incomingMsg->m_pData, 100, 100, 12, RED);
+			incomingMsg->Release();
+		}
 	}
 }
 
@@ -102,6 +120,8 @@ void Client::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 
 		// Called when connections are destroyed, but handled elsewhere.
 		case k_ESteamNetworkingConnectionState_None:
+			std::cout << "Broken Connection" << std::endl;
+			connected = false;
 			break;
 
 		case k_ESteamNetworkingConnectionState_ClosedByPeer:
@@ -123,15 +143,18 @@ void Client::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 
 			networkInterface->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
 			connection = k_HSteamNetConnection_Invalid;
+			connected = false;
 			break;
 		}
 
 		// start connecting
 		case k_ESteamNetworkingConnectionState_Connecting:
+			std::cout << "Connecting..." << std::endl;
 			break;
 
 		case k_ESteamNetworkingConnectionState_Connected:
 			std::cout << "Connected OK" << std::endl;
+			connected = true;
 			break;
 
 		default:

@@ -16,9 +16,19 @@
 #include <chrono>
 
 static Server* serverInstance; // must be in the implementation file
+static SteamNetworkingMicroseconds logTimeZero;
 
 Server::Server() {
 	
+}
+
+void Server::debugOutput(ESteamNetworkingSocketsDebugOutputType eType, const char* msg) {
+	SteamNetworkingMicroseconds time = SteamNetworkingUtils()->GetLocalTimestamp() - logTimeZero;
+	std::cout << "Debug Time: " << time << std::endl;
+	
+	if (eType == k_ESteamNetworkingSocketsDebugOutputType_Bug) {
+		std::cout << "Error" << std::endl;
+	}
 }
 
 void Server::init(uint16 port) {
@@ -28,9 +38,9 @@ void Server::init(uint16 port) {
 	if (!GameNetworkingSockets_Init(nullptr, errMsg))
 		std::cerr << "GameNetworkingSockets_Init failed: " << errMsg << std::endl;
 
-	// Other init steps to implement
-	//g_logTimeZero = SteamNetworkingUtils()->GetLocalTimestamp();
-	//SteamNetworkingUtils()->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg, DebugOutput);
+	// init debug
+	logTimeZero = SteamNetworkingUtils()->GetLocalTimestamp();
+	SteamNetworkingUtils()->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg, debugOutput);
 
 	// Use the default interface
 	networkInterface = SteamNetworkingSockets();
