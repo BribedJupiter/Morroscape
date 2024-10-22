@@ -23,15 +23,16 @@ public:
 	void close();
 	Client();
 	~Client();
+
 private:
 	HSteamNetConnection connection;
 	ISteamNetworkingSockets* networkInterface;
 
 	static void debugOutput(ESteamNetworkingSocketsDebugOutputType eType, const char* msg);
+	static void SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t* pInfo);
 
 	void sendMessage(const char* msg);
 	void pollMessages();
 	void pollConnectionStateChanges();
 	void OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* pInfo);
-	static void SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t* pInfo);
 };

@@ -75,6 +75,8 @@ void Client::tick() {
 		pollMessages();
 		pollConnectionStateChanges();
 		// also input
+
+		sendMessage("I can see you");
 	}
 }
 

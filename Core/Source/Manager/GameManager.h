@@ -32,17 +32,19 @@ class GameManager : public GameEntity {
 private:
 	bool isServer; //  server or client
 	bool drawDebug = DEBUG_MODE; 
+
 	CommandDispatcher dispatcher;
 	World world;
 	PlayerController localPlayerController;
 	Server server;
 	Client client;
+
 public:
-	GameManager(bool isServer=false, bool drawDebug=true); // defaults to client behavior
 	void dispatchCommand(Command command);
 	void connectToNetwork();
 	void syncWithNetwork();
 	void update();
 	void render();
+	GameManager(bool isServer = false, bool drawDebug = true); // defaults to client behavior
 	~GameManager();
 };

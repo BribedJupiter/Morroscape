@@ -85,6 +85,8 @@ void Server::tick() {
 	pollConnectionStateChanges();
 	// Poll local input
 	pollServerStateChanges();
+
+	broadcast("Hello There");
 }
 
 void Server::pause() {
