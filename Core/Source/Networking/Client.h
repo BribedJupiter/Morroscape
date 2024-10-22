@@ -23,7 +23,6 @@ public:
 	void close();
 	Client();
 	~Client();
-
 private:
 	HSteamNetConnection connection;
 	ISteamNetworkingSockets* networkInterface;

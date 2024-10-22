@@ -24,10 +24,10 @@ Server::Server() {
 
 void Server::debugOutput(ESteamNetworkingSocketsDebugOutputType eType, const char* msg) {
 	SteamNetworkingMicroseconds time = SteamNetworkingUtils()->GetLocalTimestamp() - logTimeZero;
-	std::cout << "Debug Time: " << time << std::endl;
+	std::cout << "[Server] Debug time: " << time << std::endl;
 	
 	if (eType == k_ESteamNetworkingSocketsDebugOutputType_Bug) {
-		std::cout << "Error" << std::endl;
+		std::cout << "[Server] Error" << std::endl;
 	}
 }
 
@@ -36,7 +36,7 @@ void Server::init(uint16 port) {
 
 	SteamDatagramErrMsg errMsg;
 	if (!GameNetworkingSockets_Init(nullptr, errMsg))
-		std::cerr << "GameNetworkingSockets_Init failed: " << errMsg << std::endl;
+		std::cerr << "[Server] GameNetworkingSockets_Init failed: " << errMsg << std::endl;
 
 	// init debug
 	logTimeZero = SteamNetworkingUtils()->GetLocalTimestamp();
@@ -45,7 +45,7 @@ void Server::init(uint16 port) {
 	// Use the default interface
 	networkInterface = SteamNetworkingSockets();
 	if (networkInterface == nullptr) {
-		std::cerr << "Error: SteamNetworkingSockets returned nullptr." << std::endl;
+		std::cerr << "[Server] Error: SteamNetworkingSockets returned nullptr." << std::endl;
 		return;
 	}
 
@@ -61,13 +61,13 @@ void Server::init(uint16 port) {
 	// Listen on socket
 	listenSocket = networkInterface->CreateListenSocketIP(serverLocalAddr, 1, &opt);
 	if (listenSocket == k_HSteamListenSocket_Invalid)
-		throw std::invalid_argument("Invalid Socket");
+		throw std::invalid_argument("[Server] Invalid Socket");
 	pollGroup = networkInterface->CreatePollGroup();
 	if (pollGroup == k_HSteamNetPollGroup_Invalid)
-		throw std::invalid_argument("Invalid Poll Group");
+		throw std::invalid_argument("[Server] Invalid Poll Group");
 	
 	running = true;
-	std::cout << "Server listening on port: " << port << std::endl;
+	std::cout << "[Server] Server listening on port: " << port << std::endl;
 }
 
 void Server::SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t* pInfo) {
@@ -103,7 +103,7 @@ void Server::close() {
 		for (auto it : mapClients) {
 			// Send a goodbye message
 			// Close connection
-			networkInterface->CloseConnection(it.first, 0, "Sever Shutdown", true);
+			networkInterface->CloseConnection(it.first, 0, "[Server] Sever Shutdown", true);
 		}
 		mapClients.clear();
 
@@ -151,6 +151,7 @@ void Server::pollMessages() {
 		sCmd.assign((const char*)pIncomingMsg->m_pData, pIncomingMsg->m_cbSize);
 		const char* cmd = sCmd.c_str();
 
+		std::cout << "[Server] Received message: " << sCmd << std::endl;
 		pIncomingMsg->Release();
 
 		// Actual processing logic

@@ -28,7 +28,7 @@ void Client::debugOutput(ESteamNetworkingSocketsDebugOutputType eType, const cha
 	SteamNetworkingMicroseconds time = SteamNetworkingUtils()->GetLocalTimestamp() - logTimeZero;
 
 	if (eType == k_ESteamNetworkingSocketsDebugOutputType_Bug || eType == k_ESteamNetworkingSocketsDebugOutputType_Error) {
-		std::cout << "[DEBUG Client] Time:" << time << "|" << msg << std::endl;
+		std::cout << "[Client] Debug time:" << time << "|" << msg << std::endl;
 	}
 }
 
@@ -41,18 +41,18 @@ void Client::init(const SteamNetworkingIPAddr &serverAddr) {
 
 	SteamDatagramErrMsg errMsg;
 	if (!GameNetworkingSockets_Init(nullptr, errMsg))
-		std::cerr << "GameNetworkingSockets_Init failed: " << errMsg << std::endl;
+		std::cerr << "[Client] GameNetworkingSockets_Init failed: " << errMsg << std::endl;
 	
 	networkInterface = SteamNetworkingSockets();
 	if (networkInterface == nullptr) {
-		std::cerr << "Error: SteamNetworkingSockets returned nullptr." << std::endl;
+		std::cerr << "[Client] Error: SteamNetworkingSockets returned nullptr." << std::endl;
 		return;
 	}
 
 	// Find address
 	char address[SteamNetworkingIPAddr::k_cchMaxString];
 	serverAddr.ToString(address, sizeof(address), true);
-	std::cout << "Connecting to server at: " << address << std::endl;
+	std::cout << "[Client] Connecting to server at: " << address << std::endl;
 
 	// options
 	SteamNetworkingConfigValue_t opt;
@@ -61,12 +61,12 @@ void Client::init(const SteamNetworkingIPAddr &serverAddr) {
 	// Connect
 	connection = networkInterface->ConnectByIPAddress(serverAddr, 1, &opt);
 	if (connection == k_HSteamNetConnection_Invalid) {
-		std::cerr << "Failed to create connection to server" << std::endl;
+		std::cerr << "[Client] Failed to create connection to server" << std::endl;
 	//	debugOutput(k_ESteamNetworkingSocketsDebugOutputType_Bug, "Failed to create connection to server");
 		return;
 	}
 
-	std::cout << "Client initialized" << std::endl;
+	std::cout << "[Client] Client initialized" << std::endl;
 	running = true;
 }
 
@@ -89,10 +89,11 @@ void Client::pollMessages() {
 		}
 		if (numMsgs < 0) {
 			//std::cerr << "Error checking messages" << std::endl;
-			debugOutput(k_ESteamNetworkingSocketsDebugOutputType_Bug, "Error checking messages");
+			debugOutput(k_ESteamNetworkingSocketsDebugOutputType_Bug, "[Client] Error checking messages");
 		}
 
 		if (incomingMsg != nullptr) {
+			std::cout << "[Server] Received message: " << (const char*) incomingMsg->m_pData << std::endl;
 			DrawText((const char*)incomingMsg->m_pData, 100, 100, 12, RED);
 			incomingMsg->Release();
 		}
@@ -122,7 +123,7 @@ void Client::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 
 		// Called when connections are destroyed, but handled elsewhere.
 		case k_ESteamNetworkingConnectionState_None:
-			std::cout << "Broken Connection" << std::endl;
+			std::cout << "[Client] Broken Connection" << std::endl;
 			connected = false;
 			break;
 
@@ -132,13 +133,13 @@ void Client::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 			std::string errorMsg;
 			// quit
 			if (pInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connecting) {
-				errorMsg = "Error connecting: ", pInfo->m_info.m_szEndDebug;
+				errorMsg = "[Client] Error connecting: ", pInfo->m_info.m_szEndDebug;
 			} 
 			else if (pInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ProblemDetectedLocally) {
-				errorMsg = "Lost contact: ", pInfo->m_info.m_szEndDebug;
+				errorMsg = "[Client] Lost contact: ", pInfo->m_info.m_szEndDebug;
 			}
 			else {
-				errorMsg = "Disconnected.", pInfo->m_info.m_szEndDebug;
+				errorMsg = "[Client] Disconnected.", pInfo->m_info.m_szEndDebug;
 			}
 
 			std::cout << errorMsg << std::endl;
@@ -151,11 +152,11 @@ void Client::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 
 		// start connecting
 		case k_ESteamNetworkingConnectionState_Connecting:
-			std::cout << "Connecting..." << std::endl;
+			std::cout << "[Client] Connecting..." << std::endl;
 			break;
 
 		case k_ESteamNetworkingConnectionState_Connected:
-			std::cout << "Connected OK" << std::endl;
+			std::cout << "[Client] Connected OK" << std::endl;
 			connected = true;
 			break;
 

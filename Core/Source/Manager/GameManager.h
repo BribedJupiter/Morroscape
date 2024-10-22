@@ -38,7 +38,6 @@ private:
 	PlayerController localPlayerController;
 	Server server;
 	Client client;
-
 public:
 	void dispatchCommand(Command command);
 	void connectToNetwork();

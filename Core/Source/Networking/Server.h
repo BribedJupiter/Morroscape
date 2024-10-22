@@ -27,7 +27,6 @@ public:
 	void broadcast(const char* str); // Send a message to all connected clients
 	Server();
 	~Server();
-
 private:
 	bool running = false;
 
