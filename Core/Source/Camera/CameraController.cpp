@@ -51,6 +51,100 @@ void CameraController::setCameraMode(CameraMode mode) {
 	}
 }
 
+//**** Basic Helper functions ****//
+
+// From rcamera.h
+Vector3 GetCameraUp(Camera* camera) {
+	return Vector3Normalize(camera->up);
+}
+
+// From rcamera.h
+Vector3 GetCameraForward(Camera* camera) {
+	return Vector3Normalize(Vector3Subtract(camera->target, camera->position));
+}
+
+// From rcamera.h
+Vector3 GetCameraRight(Camera* camera) {
+	Vector3 forward = GetCameraForward(camera);
+	Vector3 up = GetCameraUp(camera);
+
+	return Vector3Normalize(Vector3CrossProduct(forward, up));
+}
+
+//**** Advanced Helper Functions ****// 
+
+// Yaw is side-to-side movement. Angle in radians. From rcamera.h. 
+void CameraYaw(Camera *camera, float angle, bool rotateAroundTarget) {
+	// Get rotation axis
+	Vector3 up = GetCameraUp(camera);
+
+	// View vector (vector camera is pointing)
+	Vector3 targetPosition = Vector3Subtract(camera->target, camera->position);
+
+	// Rotate view vector around up axis
+	targetPosition = Vector3RotateByAxisAngle(targetPosition, up, angle);
+
+	if (rotateAroundTarget) {
+		camera->position = Vector3Subtract(camera->target, targetPosition);
+	}
+	else {
+		camera->target = Vector3Add(camera->position, targetPosition);
+	}
+}
+
+// Pitch is up/down movement. Angle in radians. lockView clamps rotation to avoid overrotation. From rcamera.h
+void CameraPitch(Camera *camera, float angle, bool lockView, bool rotateAroundTarget) {
+	// up vector
+	Vector3 up = GetCameraUp(camera);
+
+	// View vector
+	Vector3 targetPosition = Vector3Subtract(camera->target, camera->position);
+
+	if (lockView) {
+		// clamp look up 
+		float maxAngleUp = Vector3Angle(up, targetPosition);	
+		maxAngleUp -= 0.001f; // avoid numerical errors
+		if (angle > maxAngleUp) angle = maxAngleUp;
+
+		// clamp look down
+		float maxAngleDown = Vector3Angle(Vector3Negate(up), targetPosition);
+		maxAngleDown *= -1.0f; // down angle is negative
+		maxAngleDown += 0.001f; // avoid numerical errors
+		if (angle < maxAngleDown) angle = maxAngleDown;
+	}
+
+	// Rotation axis
+	Vector3 right = GetCameraRight(camera);
+
+	// Rotate view vector around right axis
+	targetPosition = Vector3RotateByAxisAngle(targetPosition, right, angle);
+
+	if (rotateAroundTarget) {
+		camera->position = Vector3Subtract(camera->target, targetPosition);
+	}
+	else {
+		// rotate around camera pos
+		camera->target = Vector3Add(camera->position, targetPosition);
+	}
+}
+
+// Moves the camera position closer/farther to/from the camera target. From rcamera.h
+void CameraMoveToTarget(Camera* camera, float delta)
+{
+	float distance = Vector3Distance(camera->position, camera->target);
+
+	// Apply delta
+	distance += delta;
+
+	// Distance must be greater than 0
+	if (distance <= 0) distance = 0.001f;
+
+	// Set new distance by moving the position along the forward vector
+	Vector3 forward = GetCameraForward(camera);
+	camera->position = Vector3Add(camera->target, Vector3Scale(forward, -distance));
+}
+
+// Update the camera with new values. Inputs the new player position and the change in player position
 void CameraController::update(float deltaTime, Vector3 playerPos, Vector3 changePos) {
 	float cameraSpeed = BASE_CAMERA_SPEED * deltaTime;
 	//std::cout << "Camera position: (" << camera.position.x << ", " << camera.position.y << ", " << camera.position.z << ")" << std::endl;
@@ -66,7 +160,7 @@ void CameraController::update(float deltaTime, Vector3 playerPos, Vector3 change
 			- player rotation needs to match mouse movement
 		3rd person - playerObject at camera target. Camera target matches object position. Camera position does not.
 
-		GameObject -> apply forces with keys to move player. Camera follows object. 
+		GameObject -> apply forces with keys to move player. Camera follows object.
 			- input handler needs to be able to send a command to apply a force
 			- camera needs to update accordingly
 
@@ -75,26 +169,34 @@ void CameraController::update(float deltaTime, Vector3 playerPos, Vector3 change
 	*/
 
 	// Update Camera for first person
-	if (cameraMode == CAMERA_FIRST_PERSON)
+	if (cameraMode == CAMERA_FIRST_PERSON) {
 		// Move camera to the position of target, and reset target
 		camera.position = playerPos;
 		camera.target = Vector3Add(camera.target, changePos);
 		UpdateCameraPro(&camera,
-			{0, 0, 0},
+			{ 0, 0, 0 },
 			Vector3{ GetMouseDelta().x * BASE_CAMERA_SPEED, GetMouseDelta().y * BASE_CAMERA_SPEED, 0.0f },
 			0.0f
 		);
+	}
 		
-	// TODO: Fixing 3rd person might need a rewrite of the whole camera module
 	if (cameraMode == CAMERA_THIRD_PERSON) {
+		Vector2 mousePosDelta = GetMouseDelta();		
+		// pitch / yaw camera around target based on mouse movement
+		CameraYaw(&camera, -mousePosDelta.x * CAMERA_MOUSE_MOVE_SENSITIVITY, true);
+		CameraPitch(&camera, -mousePosDelta.y * CAMERA_MOUSE_MOVE_SENSITIVITY, true, true);
+
 		// Handle camera movement in 3rd person
 		camera.target = playerPos;
 		camera.position = Vector3Add(camera.position, changePos);
-		UpdateCamera(&camera, CAMERA_THIRD_PERSON);
+
+		// Zoom camera in and out
+		CameraMoveToTarget(&camera, -GetMouseWheelMove());
 	}
 
-	if (cameraMode == CAMERA_FREE)
+	if (cameraMode == CAMERA_FREE) {
 		UpdateCamera(&camera, cameraMode);
+	}
 }
 
 Camera CameraController::getCamera() {

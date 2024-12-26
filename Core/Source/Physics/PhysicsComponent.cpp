@@ -117,7 +117,6 @@ Vector3 PhysicsComponent::getPosition() {
 		float(transform.getOrigin().getX()),
 		float(transform.getOrigin().getY()),
 		float(transform.getOrigin().getZ())
-
 	};
 	return position;
 }

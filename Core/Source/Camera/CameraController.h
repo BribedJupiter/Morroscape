@@ -6,6 +6,7 @@
 // 
 // --------------------------------------------------
 #pragma once
+#define CAMERA_MOUSE_MOVE_SENSITIVITY                   0.003f
 
 #include <raylib.h>
 
