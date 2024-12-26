@@ -183,6 +183,9 @@ void World::printDebug() {
 
 void World::receiveCommand(Command command) {
 	if (command.message == "SPAWN PLAYER") {
+		if (playerSpawned) {
+			despawnLocalPlayer();
+		}
 		spawnLocalPlayer();
 		std::cout << "[Entity " << name << "] Spawned player" << std::endl;
 	}
