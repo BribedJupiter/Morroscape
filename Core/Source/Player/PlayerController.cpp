@@ -63,7 +63,7 @@ void PlayerController::update(float deltaTime) {
 	if (isPlayerSpawned == true && cameraController.getCameraMode() != CAMERA_FREE) {
 		playerObject_ptr->getPhysicsComponent().body->activate(true);
 		Vector3 fwd = Vector3Normalize(Vector3Subtract(cameraController.getCamera().target, cameraController.getCamera().position));
-		Vector3 right = Vector3CrossProduct(fwd, Vector3Normalize(cameraController.getCamera().up));
+		Vector3 right = Vector3CrossProduct(fwd, {0, 1, 0});
 
 		if (IsKeyDown(KEY_W)) {
 			playerObject_ptr->getPhysicsComponent().body->applyCentralImpulse({ fwd.x, 0.0, fwd.z });

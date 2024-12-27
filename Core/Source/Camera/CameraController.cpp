@@ -128,6 +128,38 @@ void CameraPitch(Camera *camera, float angle, bool lockView, bool rotateAroundTa
 	}
 }
 
+// Move the camera in the world. 
+// Distance format is {forward, up, right} NOT {x, y, z}.
+// Modified from rcamera.h
+void CameraMove(Camera* camera, Vector3 distance) {
+	// Get axis vectors
+	Vector3 right = GetCameraRight(camera);
+	Vector3 up = GetCameraUp(camera);
+	Vector3 forward = GetCameraForward(camera);
+
+	// project forward and right into world
+	forward.y = 0;
+	forward = Vector3Normalize(forward);
+	right.y = 0;
+	right = Vector3Normalize(right);
+
+	// Scale vectors by distance
+	forward = Vector3Scale(forward, distance.x);
+	up = Vector3Scale(up, distance.y);
+	right = Vector3Scale(right, distance.z);
+
+	// Move camera's position sequentially
+	// forward, up, right
+	camera->position = Vector3Add(camera->position, forward);
+	camera->position = Vector3Add(camera->position, up);
+	camera->position = Vector3Add(camera->position, right);
+
+	// Move target
+	camera->target = Vector3Add(camera->target, forward);
+	camera->target = Vector3Add(camera->target, up);
+	camera->target = Vector3Add(camera->target, right);
+}
+
 // Moves the camera position closer/farther to/from the camera target. From rcamera.h
 void CameraMoveToTarget(Camera* camera, float delta)
 {
@@ -186,7 +218,7 @@ void CameraController::update(float deltaTime, Vector3 playerPos, Vector3 change
 		CameraYaw(&camera, -mousePosDelta.x * CAMERA_MOUSE_MOVE_SENSITIVITY, true);
 		CameraPitch(&camera, -mousePosDelta.y * CAMERA_MOUSE_MOVE_SENSITIVITY, true, true);
 
-		// Handle camera movement in 3rd person
+		// Update camera position & target to reflect player movement
 		camera.target = playerPos;
 		camera.position = Vector3Add(camera.position, changePos);
 
