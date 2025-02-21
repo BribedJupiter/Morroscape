@@ -195,12 +195,12 @@ void World::receiveCommand(Command command) {
 	}
 	if (command.message == "REQUEST PLAYER") {
 		if (playerSpawned)
-			dispatcher.dispatchCommand({ "World", "Local Player Controller", "SEND PLAYER SPAWNED", &localPlayerObject });
+			dispatcher.dispatchCommand({ this->name, "Local Player Controller", "SEND PLAYER SPAWNED", &localPlayerObject });
 		else 
-			dispatcher.dispatchCommand({ "World", "Local Player Controller", "SEND PLAYER DESPAWNED", &localPlayerObject });
+			dispatcher.dispatchCommand({ this->name, "Local Player Controller", "SEND PLAYER DESPAWNED", &localPlayerObject });
 	}
 	else {
-		std::cout << "[Entity " << name << "] received command " << command.message << " from " << command.sender << " at address " << command.address << std::endl;
+		std::cout << "[Entity " << name << "][ERROR] received false command " << command.message << " from " << command.sender << " at address " << command.address << std::endl;
 	}
 }
 

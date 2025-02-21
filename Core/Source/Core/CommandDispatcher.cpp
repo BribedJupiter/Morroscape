@@ -17,7 +17,7 @@ void CommandDispatcher::addEntity(GameEntity* entity) {
 }
 
 void CommandDispatcher::removeEntity(GameEntity* entity) {
-	auto entityIndex = std::find(entities.begin(), entities.end(), entity);
+	std::vector<GameEntity*>::iterator entityIndex = std::find(entities.begin(), entities.end(), entity);
 	if (!(entityIndex != entities.end())) {
 		// go is not in vector
 		std::cout << "[CommandDispatcher] could not find entity in entities" << std::endl;
@@ -27,7 +27,7 @@ void CommandDispatcher::removeEntity(GameEntity* entity) {
 }
 
 void CommandDispatcher::dispatchCommand(Command command) {
-	for (auto& entity : entities) {
+	for (GameEntity* entity : entities) {
 		if (entity->name == command.target) {
 			entity->receiveCommand(command);
 			break;

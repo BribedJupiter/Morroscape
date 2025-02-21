@@ -16,7 +16,6 @@
 #include "Manager/GameManager.h"
 
 
-// TODO: Implement debug world for physics
 // TODO: Fix memory issue -> if populate world multiple times, and clear it, memory usage will not decrease as much
 // TODO: Fix --> there are not checks when copying GameObject that what is copied as the physicsObject is actually the physicsObject
 // TODO: Fix --> tracking size in both when spawned and physicsdetails is redundant

@@ -14,15 +14,22 @@
 // TODO: Fix always initialize a localPlayerController
 
 GameManager::GameManager(bool isServer, bool drawDebug)
-	: isServer(isServer), drawDebug(drawDebug), dispatcher(CommandDispatcher()), world(World(dispatcher)),
-	localPlayerController(PlayerController(dispatcher)), server(Server()), client(Client())
+: 
+	isServer(isServer), // set server flag
+	drawDebug(drawDebug), // set debug flag
+	dispatcher(CommandDispatcher()), // initialize the command dispatcher
+	world(World(dispatcher)), // initialize the world
+	localPlayerController(PlayerController(dispatcher)), // initialize the player controller
+	server(Server()), // initialize the server state
+	client(Client() // initialize the client state
+)
 {
 	// Setup entities
 	this->setName("Game Manager");
 	world.setName("World");
 	localPlayerController.setName("Local Player Controller");
 
-	// Setup dispatcher
+	// Setup dispatcher and register important entities
 	dispatcher.addEntity(this); // add game manager
 	dispatcher.addEntity(&world); // add world
 	dispatcher.addEntity(&localPlayerController); // add the player controller
@@ -34,17 +41,19 @@ GameManager::GameManager(bool isServer, bool drawDebug)
 	// Setup world - must be done after initializing the window as it loads objects into the GPU
 	world.populate();
 
+	// Server or client setup
 	if (isServer) {
-		// If server
+		// If server, open
 		server.init(8080);
 	}
 	else {
-		// If client
+		// If client, attempt to connect to server
 		SteamNetworkingIPAddr serverAddr;
 		serverAddr.SetIPv6LocalHost(8080);
 		client.init(serverAddr);
 
-		dispatcher.dispatchCommand({ "World", "Local Player Controller", "SWITCH CAMERA FIRST PERSON", nullptr });
+		// Send a command to set the player to first person mode
+		dispatcher.dispatchCommand({ this->name, "Local Player Controller", "SWITCH CAMERA FIRST PERSON", nullptr });
 	}
 
 	// Final initialization

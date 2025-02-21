@@ -41,7 +41,7 @@ void PlayerController::receiveCommand(Command command) {
 	}
 	//std::cout  << "[Entity " << name << "] Player object ptr " << playerObject_ptr << std::endl;
 	else {
-		//std::cout << "[Entity " << name << "] received command " << command.message << " from " << command.sender << " at address " << command.address << std::endl;
+		std::cerr << "[" << this->name << "][ERROR] received false command " << command.message << " from " << command.sender << " at address " << command.address << std::endl;
 	}
 }
 
