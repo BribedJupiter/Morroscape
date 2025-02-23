@@ -17,6 +17,8 @@
 #include "PhysicsDebugDrawer.h"
 #include "Core/GameEntity.h"
 
+const float PHYSICS_FRAME_TARGET = 60.0f;
+
 // For use in physics contact tests
 struct SimulationContactResultCallback : public btCollisionWorld::ContactResultCallback {
 	bool bCollision = false;

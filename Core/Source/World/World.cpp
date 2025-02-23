@@ -187,11 +187,11 @@ void World::receiveCommand(Command command) {
 			despawnLocalPlayer();
 		}
 		spawnLocalPlayer();
-		std::cout << "[Entity " << name << "] Spawned player" << std::endl;
+		std::cout << "[" << this->name << "] Spawned player" << std::endl;
 	}
 	if (command.message == "DESPAWN PLAYER") {
 		despawnLocalPlayer();
-		std::cout << "[Entity " << name << "] Despawned player" << std::endl;
+		std::cout << "[" << this->name << "] Despawned player" << std::endl;
 	}
 	if (command.message == "REQUEST PLAYER") {
 		if (playerSpawned)
@@ -200,17 +200,17 @@ void World::receiveCommand(Command command) {
 			dispatcher.dispatchCommand({ this->name, "Local Player Controller", "SEND PLAYER DESPAWNED", &localPlayerObject });
 	}
 	else {
-		std::cout << "[Entity " << name << "][ERROR] received false command " << command.message << " from " << command.sender << " at address " << command.address << std::endl;
+		//std::cerr << "[" << this->name << "][ERROR] received false command " << command.message << " from " << command.sender << " at address " << command.address << std::endl;
 	}
 }
 
 void World::update(float deltaTime) {
-	float targetPhysicsFPS = (deltaTime < 1 && deltaTime > 0) ? deltaTime : 1.0 / 60.0; // Stop physics simulations from being run with crazy long time steps if deltaTime is too big, or if it is 0
+	float targetPhysicsFPS = (deltaTime < 1 && deltaTime > 0) ? deltaTime : 1.0 / PHYSICS_FRAME_TARGET; // Stop physics simulations from being run with crazy long time steps if deltaTime is too big, or if it is 0
 	physicsWorld.update(targetPhysicsFPS);
 }
 
 void World::render(bool drawDebug) {
-	for (auto& object : spawnedGameObjects) {
+	for (GameObject object : spawnedGameObjects) {
 		if (object.visible)
 		object.render();
 	}

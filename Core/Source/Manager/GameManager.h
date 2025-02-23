@@ -19,7 +19,7 @@
 #include "Networking/Client.h"
 
 // Game constants
-const int TARGET_FPS = 120;
+const int TARGET_FPS = 60;
 const bool DEBUG_MODE = true;
 
 // CLient constants

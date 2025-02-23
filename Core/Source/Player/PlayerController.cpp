@@ -27,21 +27,18 @@ void PlayerController::getPlayerObject() {
 
 void PlayerController::receiveCommand(Command command) {
 	if (command.message == "SEND PLAYER SPAWNED") {
-		//std::cout << "[Entity " << name << "] Player game object spawned located at " << command.address << std::endl;
 		playerObject_ptr = (GameObject*) command.address; // cast to correct type
 		isPlayerSpawned = true;
 	}
 	if (command.message == "SEND PLAYER DESPAWNED") {
-		//std::cout << "[Entity " << name << "] Player game object despawned located at " << command.address << std::endl;
 		playerObject_ptr = (GameObject*) command.address; // cast to correct type
 		isPlayerSpawned = false;
 	}
 	if (command.message == "SWITCH CAMERA FIRST PERSON") {
 		cameraController.setCameraMode(CAMERA_FIRST_PERSON);
 	}
-	//std::cout  << "[Entity " << name << "] Player object ptr " << playerObject_ptr << std::endl;
 	else {
-		std::cerr << "[" << this->name << "][ERROR] received false command " << command.message << " from " << command.sender << " at address " << command.address << std::endl;
+		//std::cerr << "[" << this->name << "][ERROR] received false command " << command.message << " from " << command.sender << " and address " << command.address << std::endl;
 	}
 }
 
@@ -53,7 +50,7 @@ void PlayerController::update(float deltaTime) {
 
 	// If 1st person -> player game object spawned, but not visible, the location of the camera follows the object's position
 	// If 3rd person -> player game object spawned, camera's target is the object's position and cam pos follows too
-	
+
 	// Movement
 	if (IsKeyDown(KEY_LEFT_SHIFT)) {
 		movementSpeed *= 2;
@@ -108,7 +105,7 @@ void PlayerController::update(float deltaTime) {
 		// Get the player's position this frame to compute the change in position
 		btVector3 btPos = playerObject_ptr->getPhysicsComponent().body->getWorldTransform().getOrigin();
 		Vector3 pos = { btPos.getX(), btPos.getY(), btPos.getZ() };
-		Vector3 changePos = {pos.x - lastPlayerPos.x, pos.y - lastPlayerPos.y, pos.z - lastPlayerPos.z};
+		Vector3 changePos = { pos.x - lastPlayerPos.x, pos.y - lastPlayerPos.y, pos.z - lastPlayerPos.z };
 
 		// Set the last player position for use in the next iteration of update
 		btVector3 oldBtPos = playerObject_ptr->getPhysicsComponent().body->getWorldTransform().getOrigin();
@@ -118,9 +115,8 @@ void PlayerController::update(float deltaTime) {
 		cameraController.update(deltaTime, pos, changePos);
 	}
 	else {
-		cameraController.update(deltaTime, { 0, 4, 4 }, {0, 0, 0});
+		cameraController.update(deltaTime, { 0, 4, 4 }, { 0, 0, 0 });
 	}
-
 }
 
 PlayerController::~PlayerController() {
