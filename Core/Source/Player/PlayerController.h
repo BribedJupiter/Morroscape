@@ -13,6 +13,7 @@
 #include "Core/GameObject.h"
 #include "Core/CommandDispatcher.h"
 #include "Core/GameEntity.h"
+#include "Physics/PhysicsComponent.h"
 
 const float BASE_MOVEMENT_SPEED = 10.0f;
 
@@ -22,6 +23,7 @@ private:
 	CommandDispatcher& dispatcher;
 	float movementSpeed;
 	GameObject* playerObject_ptr;
+	PhysicsComponent* physicsComponent;
 	bool isPlayerSpawned;
 	Vector3 lastPlayerPos;
 public:

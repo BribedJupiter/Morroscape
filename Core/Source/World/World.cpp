@@ -120,15 +120,18 @@ void World::createLocalPlayerObject() {
 
 void World::spawnLocalPlayer() {
 	localPlayerObject.generatePhysicsComponent({0.0, 3.0, 0.0}, {0.0, 0.0, 0.0}, {2.0, 2.0, 2.0}); // generate its physicsComponent
-	physicsWorld.addToWorld(localPlayerObject.getPhysicsComponent()); // add this copy to the physicsWorld
+	PhysicsComponent& physicsComponentRef = localPlayerObject.getPhysicsComponent(); // get an alias to the new physics component
+	physicsWorld.addToWorld(physicsComponentRef); // add this copy to the physicsWorld
 	// Set proper player settings
-	localPlayerObject.getPhysicsComponent().body->setAngularFactor(btVector3(0.0f, 0.0f, 0.0f)); // lock player rotation due to physics
+	physicsComponentRef.body->setAngularFactor(btVector3(0.0f, 0.0f, 0.0f)); // lock player rotation due to physics
 	playerSpawned = true;
+	dispatcher.dispatchCommand({ this->name, "Local Player Controller", "SET PHYSICS COMPONENT", localPlayerObject.getRawPhysicsComponent() });
 	std::cout << "[World] localPlayerObject was spawned with ID: " << localPlayerObject.id << std::endl;
 }
 
 void World::despawnLocalPlayer() {
 	if (playerSpawned) {
+		dispatcher.dispatchCommand({ this->name, "Local Player Controller", "UNSET PHYSICS COMPONENT", nullptr });
 		physicsWorld.removeFromWorld(localPlayerObject.getPhysicsComponent());
 		localPlayerObject.removePhysicsComponent();
 		playerSpawned = false;
@@ -194,10 +197,11 @@ void World::receiveCommand(Command command) {
 		std::cout << "[" << this->name << "] Despawned player" << std::endl;
 	}
 	if (command.message == "REQUEST PLAYER") {
-		if (playerSpawned)
-			dispatcher.dispatchCommand({ this->name, "Local Player Controller", "SEND PLAYER SPAWNED", &localPlayerObject });
-		else 
-			dispatcher.dispatchCommand({ this->name, "Local Player Controller", "SEND PLAYER DESPAWNED", &localPlayerObject });
+		// Unnecessary - local player controller has physics component and can tell if spawned by if physicsComponent is nullptr or not
+		//if (playerSpawned)
+		//	dispatcher.dispatchCommand({ this->name, "Local Player Controller", "SEND PLAYER SPAWNED", &localPlayerObject });
+		//else 
+		//	dispatcher.dispatchCommand({ this->name, "Local Player Controller", "SEND PLAYER DESPAWNED", &localPlayerObject });
 	}
 	else {
 		//std::cerr << "[" << this->name << "][ERROR] received false command " << command.message << " from " << command.sender << " at address " << command.address << std::endl;

@@ -55,7 +55,9 @@ void PhysicsWorld::removeFromWorld(PhysicsComponent& po) {
 }
 
 void PhysicsWorld::update(btScalar stepTime) {
-	dynamicsWorld->stepSimulation(btScalar(stepTime), 10); // Update physics
+	dynamicsWorld->stepSimulation(btScalar(stepTime), 0); // Update physics
+	// Note: When maxSubSteps was 10, I noticed a huge desync between where the player was rendered vs where the physics debug 
+	// drawing showed. Setting it to zero fixed this issue. 
 }
 
 void PhysicsWorld::render() {

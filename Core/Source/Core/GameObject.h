@@ -49,7 +49,8 @@ public:
 	void removePhysicsComponent();
 
 	Vector3 getPosition(); // return the position of the object
-	PhysicsComponent& getPhysicsComponent();
+	PhysicsComponent& getPhysicsComponent(); // Return a reference to the physics component
+	PhysicsComponent* getRawPhysicsComponent(); // Return the physics component pointer itself
 
 	~GameObject();
 

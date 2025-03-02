@@ -55,7 +55,11 @@ Vector3 GameObject::getPosition() {
 }
 
 PhysicsComponent& GameObject::getPhysicsComponent() {
-	return *physicsComponent; // return the dereferenced physicsComponent
+	return *physicsComponent; // Since physicsComponent is a pointer, we dereference the pointer and return a reference to that value
+}
+
+PhysicsComponent* GameObject::getRawPhysicsComponent() {
+	return physicsComponent;
 }
 
 void GameObject::removePhysicsComponent() {
